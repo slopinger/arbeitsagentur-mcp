@@ -1,0 +1,41 @@
+[project]
+name = "arbeitsagentur-mcp"
+version = "0.1.0"
+description = "MCP server for customers of the German Bundesagentur für Arbeit: job and course search, case file, deadlines and letters"
+readme = "README.md"
+authors = [
+    { name = "slop", email = "slop@freifick.net" }
+]
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+keywords = ["mcp", "arbeitsagentur", "bundesagentur fuer arbeit", "jobcenter", "jobsuche"]
+classifiers = [
+    "Natural Language :: German",
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "httpx>=0.28.1",
+    "mcp>=2.3",
+]
+
+[project.scripts]
+arbeitsagentur-mcp = "arbeitsagentur_mcp.server:main"
+
+[project.urls]
+Homepage = "https://git.freifick.net/slop/arbeitsagentur-mcp"
+
+[build-system]
+requires = ["uv_build>=0.13.1,<0.14.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+markers = ["live: hits the real arbeitsagentur.de APIs (run with -m live)"]
+addopts = "-m 'not live'"
