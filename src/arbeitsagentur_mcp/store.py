@@ -10,6 +10,7 @@ import csv
 import io
 import os
 import sqlite3
+import threading
 from collections.abc import Iterable
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -188,7 +189,10 @@ class Store:
         self.path = Path(path) if path else default_db_path()
         self.path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
         new = not self.path.exists()
-        self.db = sqlite3.connect(self.path, isolation_level=None)
+        # MCP servers call synchronous tools from worker threads; sqlite3 is in serialized mode
+        # (threadsafety 3), so one shared connection is fine. The lock keeps read-then-write steps atomic.
+        self.db = sqlite3.connect(self.path, isolation_level=None, check_same_thread=False)
+        self.lock = threading.RLock()
         self.db.row_factory = sqlite3.Row
         self.db.execute("PRAGMA journal_mode=WAL")
         self.db.executescript(SCHEMA)
@@ -205,17 +209,19 @@ class Store:
         values["created_at"] = values["updated_at"] = _now()
         cols = ", ".join(values)
         marks = ", ".join("?" for _ in values)
-        cur = self.db.execute(f"INSERT INTO {table} ({cols}) VALUES ({marks})", list(values.values()))
-        return self.get(table, cur.lastrowid)
+        with self.lock:
+            cur = self.db.execute(f"INSERT INTO {table} ({cols}) VALUES ({marks})", list(values.values()))
+            return self.get(table, cur.lastrowid)
 
     def _update(self, table: str, row_id: int, values: dict[str, Any]) -> dict[str, Any]:
-        self.get(table, row_id)
-        values = {k: v for k, v in values.items() if v is not None}
-        if values:
-            values["updated_at"] = _now()
-            sets = ", ".join(f"{k} = ?" for k in values)
-            self.db.execute(f"UPDATE {table} SET {sets} WHERE id = ?", [*values.values(), row_id])
-        return self.get(table, row_id)
+        with self.lock:
+            self.get(table, row_id)
+            values = {k: v for k, v in values.items() if v is not None}
+            if values:
+                values["updated_at"] = _now()
+                sets = ", ".join(f"{k} = ?" for k in values)
+                self.db.execute(f"UPDATE {table} SET {sets} WHERE id = ?", [*values.values(), row_id])
+            return self.get(table, row_id)
 
     def get(self, table: str, row_id: int) -> dict[str, Any]:
         row = self.db.execute(f"SELECT * FROM {table} WHERE id = ?", (row_id,)).fetchone()
@@ -230,9 +236,10 @@ class Store:
         table = TABLES.get(kind)
         if table is None:
             raise ValueError(f"kind must be one of {', '.join(TABLES)}")
-        row = self.get(table, row_id)
-        self.db.execute(f"DELETE FROM {table} WHERE id = ?", (row_id,))
-        return row
+        with self.lock:
+            row = self.get(table, row_id)
+            self.db.execute(f"DELETE FROM {table} WHERE id = ?", (row_id,))
+            return row
 
     # --- profile --------------------------------------------------------------------------
 

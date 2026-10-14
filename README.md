@@ -13,9 +13,31 @@ MCP server for **customers** of the German Bundesagentur für Arbeit (Agentur f�
 - **Letter drafts**: Widerspruch, Akteneinsicht/DSGVO, Überprüfungsantrag, Veränderungsmitteilung,
   Terminabsage, Krankmeldung, Rückmeldung Vermittlungsvorschlag, Bildungsgutschein, Ortsabwesenheit.
 - `rules` tool with short, sourced explanations of duties and sanctions.
+- **Your own "Meine BA" account** (`meineba_*`): Postfach (read, download attachments, send after
+  explicit confirmation), Termine, Verlauf, Antragsübersicht, Leistungen, Jobsuche watch list with
+  notes and application status, saved searches.
 
-The logged-in eServices ("Meine BA") have no API; nothing is submitted to the agency. General
-information, not legal advice.
+General information, not legal advice.
+
+## Meine BA login
+
+You sign in yourself; the server never sees your password.
+
+1. `meineba_login_start(service="postfach")` returns a link to `sso.arbeitsagentur.de`.
+2. Open it in your own browser and sign in (password + second factor, passkey or BundID).
+3. The browser lands on an arbeitsagentur.de page whose address contains `code=…&state=…` (the page
+   itself may show an error; that's fine). Copy the full address within about a minute and pass it
+   to `meineba_login_finish`.
+
+This is the OpenID Connect authorization-code flow with PKCE that the BA web apps use. Each BA web
+app is its own client (`postfach`, `termine`, `verlauf`, `antraege`, `leistungen`, `jobsuche`), so each
+needs a login; after the first one your browser's single sign-on makes the others instant. Tokens are
+stored in `meineba-tokens.json` next to the case file (mode 0600, override with
+`ARBEITSAGENTUR_MCP_TOKENS`) and refreshed automatically; `meineba_logout` ends the sessions.
+
+The endpoints are the ones the BA's own web apps call, not a documented API. They were mapped from
+the apps' public JavaScript and checked to exist, and the client is tested against a simulated SSO
+and API, but response formats can differ or change; responses are passed through mostly as-is.
 
 ## Usage
 

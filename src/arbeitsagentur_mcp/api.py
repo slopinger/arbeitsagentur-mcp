@@ -108,7 +108,7 @@ class BAClient:
         await self._client.aclose()
 
     async def _request(self, method: str, url: str, key: str, **kw: Any) -> Any:
-        headers = {"X-API-Key": key, "Accept": "application/json"}
+        headers = {"X-API-Key": key, "Accept": "application/json, application/hal+json;q=0.9, */*;q=0.1"}
         try:
             r = await self._client.request(method, url, headers=headers, **kw)
         except httpx.HTTPError as e:
