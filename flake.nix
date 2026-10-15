@@ -25,6 +25,7 @@
 
   outputs =
     {
+      self,
       nixpkgs,
       pyproject-nix,
       uv2nix,
@@ -104,6 +105,13 @@
           pytest
           touch $out
         '';
+      });
+
+      apps = forAllSystems (system: {
+        default = {
+          type = "app";
+          program = "${self.packages.${system}.default}/bin/arbeitsagentur-mcp";
+        };
       });
 
       packages = forAllSystems (system: {
