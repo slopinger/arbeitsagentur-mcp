@@ -58,3 +58,22 @@ uv run pytest -m live    # against the real APIs
 
 The public endpoints and client IDs are those used by the BA's own web apps (see bundesAPI on GitHub).
 License: MIT.
+
+## Nix packaging
+
+`nix build` builds the `arbeitsagentur-mcp` executable and its Python runtime from
+`uv.lock` using uv2nix. `nix run . -- --help` shows the CLI. No network access
+is required when running the application build after its pinned inputs have
+been fetched. `nix flake check` runs the offline test suite (56 tests at
+introduction); live directory/API requests are excluded. Linux x86_64 and
+aarch64 packages are defined; builds were verified on x86_64.
+
+`nix develop` provides an editable Python environment plus uv. Run `pytest` or
+`arbeitsagentur-mcp` directly there; changes under `src/` take effect immediately.
+Run `uv lock` when changing Python dependencies and commit `uv.lock`; update
+Nix inputs with `nix flake update` and commit `flake.lock`.
+
+This project is a per-user stdio tool by default. It has no NixOS service module;
+there is no public authenticated HTTP deployment. Private databases and user
+configuration stay outside the Nix store and repository at the paths documented
+above.
