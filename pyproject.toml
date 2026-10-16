@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "MCP server for customers of the German Bundesagentur für Arbeit: job and course search, case file, deadlines and letters"
 readme = "README.md"
 authors = [
-    { name = "slop", email = "slop@freifick.net" }
+    { name = "slop", email = "slopmoder@tutamail.com" }
 ]
 requires-python = ">=3.11"
 license = "MIT"
