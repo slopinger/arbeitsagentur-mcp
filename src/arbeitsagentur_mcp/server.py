@@ -74,7 +74,7 @@ def create_server(store: Store | None = None, client: BAClient | None = None,
         title="Arbeitsagentur (Kundensicht)",
         instructions=INSTRUCTIONS,
         version=__version__,
-        website_url="https://git.freifick.net/slop/arbeitsagentur-mcp",
+        website_url="https://github.com/slopinger/arbeitsagentur-mcp",
     )
     state: dict[str, Any] = {"store": store, "client": client, "meineba": meineba}
 

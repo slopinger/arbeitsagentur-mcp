@@ -100,7 +100,7 @@ class BAClient:
     def __init__(self, client: httpx.AsyncClient | None = None, timeout: float = 30.0):
         self._client = client or httpx.AsyncClient(
             timeout=timeout,
-            headers={"User-Agent": f"arbeitsagentur-mcp/{__version__} (+https://git.freifick.net/slop/arbeitsagentur-mcp)"},
+            headers={"User-Agent": f"arbeitsagentur-mcp/{__version__} (+https://github.com/slopinger/arbeitsagentur-mcp)"},
             follow_redirects=True,
         )
 

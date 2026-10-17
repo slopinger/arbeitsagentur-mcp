@@ -23,7 +23,7 @@ dependencies = [
 arbeitsagentur-mcp = "arbeitsagentur_mcp.server:main"
 
 [project.urls]
-Homepage = "https://git.freifick.net/slop/arbeitsagentur-mcp"
+Homepage = "https://github.com/slopinger/arbeitsagentur-mcp"
 
 [build-system]
 requires = ["uv_build>=0.13.1,<0.14.0"]
