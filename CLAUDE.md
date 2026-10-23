@@ -21,4 +21,9 @@ Keep README and these notes current. Follow `/home/slop/CLAUDE.md`.
 - Nix: `nix build`, `nix flake check`, `nix develop`; commit `flake.lock`.
   uv2nix consumes `uv.lock`; the dev shell is editable. Run `pytest` directly in it.
   The per-user stdio tool has no public service module. Keep private data out of the store.
+- nixpkgs: packaged as `pkgs/by-name/ar/arbeitsagentur-mcp` (maintainer `slopinger`; PR from the fork
+  checkout `~/src/nixpkgs`, branch `arbeitsagentur-mcp-init`). It builds from the `v<version>` tag with
+  nixpkgs' own Python packages, so keep dependency lower bounds (incl. `uv_build` in `build-system`)
+  satisfiable by nixpkgs master and check there before raising them. Release = bump `version` in
+  `pyproject.toml`, signed tag `v<version>`, push with `--tags`.
 - Never add Co-Authored-By trailers or session links to public GitHub content.

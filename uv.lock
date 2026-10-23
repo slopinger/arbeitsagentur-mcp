@@ -47,7 +47,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "httpx", specifier = ">=0.28.1" },
-    { name = "mcp", specifier = ">=2.3" },
+    { name = "mcp", specifier = ">=2.2" },
 ]
 
 [package.metadata.requires-dev]
